@@ -3,6 +3,10 @@ name: Linters
 on: pull_request
 
 env:
+  DB_HOST: localhost
+  DB_USER: postgres
+  DB_PASSWORD: postgres
+  RAILS_ENV: test
   FORCE_COLOR: 1
 
 jobs:
@@ -48,11 +52,6 @@ jobs:
       - name: Bundle gems
         run: bundle install
       - name: Setup database
-        env:
-          DB_HOST: localhost
-          DB_USER: postgres
-          DB_PASSWORD: postgres
-          RAILS_ENV: test
         run: rake db:prepare
       - name: Run specs
         run: rspec
