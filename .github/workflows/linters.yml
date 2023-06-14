@@ -38,7 +38,7 @@ jobs:
         with:
           ruby-version: 3.1.x
       - name: Bundle gems
-        run: bundle install --no-document
+        run: bundle install
       - name: Run specs
         run: rspec
 
