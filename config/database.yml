@@ -8,6 +8,7 @@ default: &default
 credentials: &credentials
   username: <%= ENV.fetch("DB_USER") %>
   password: <%= ENV.fetch("DB_PASSWORD") %>
+  host: <%= ENV.fetch("DB_HOST") %>
 
 development:
   <<: *default
