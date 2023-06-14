@@ -12,12 +12,12 @@ env:
 jobs:
   rubocop:
     name: Rubocop
-    runs-on: ${{ env.OS_VERSION }}
+    runs-on: '${{ env.OS_VERSION }}'
     steps:
       - uses: actions/checkout@v2
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: ${{ env.RUBY_VERSION }}
+          ruby-version: '${{ env.RUBY_VERSION }}'
       - name: Setup Rubocop
         run: |
           gem install --no-document rubocop -v '>= 1.0, < 2.0' # https://docs.rubocop.org/en/stable/installation/
@@ -27,7 +27,7 @@ jobs:
 
   RSpec:
     name: Specs
-    runs-on: ${{ env.OS_VERSION }}
+    runs-on: '${{ env.OS_VERSION }}'
     services:
       postgres:
         image: postgres:14
@@ -42,7 +42,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: ${{ env.RUBY_VERSION }}
+          ruby-version: '${{ env.RUBY_VERSION }}'
       - name: Bundle gems
         run: bundle install
       - name: Prepare database
@@ -52,7 +52,7 @@ jobs:
 
   node-checker:
     name: node_modules checker
-    runs-on: ubuntu-22.04
+    runs-on: '${{ env.OS_VERSION }}'
     steps:
       - uses: actions/checkout@v2
       - name: Check node_modules existence
