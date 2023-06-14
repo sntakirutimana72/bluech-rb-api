@@ -14,7 +14,7 @@ RSpec.describe User, type: :model do
 
   describe 'With_invalid_arguments' do
     it { expect(described_class.new).to_not be_valid }
-    it { expect(described_class.new(name: 'Hi' )).to_not be_valid }
+    it { expect(described_class.new(name: 'Hi')).to_not be_valid }
 
     it do
       instance = described_class.new(name: 'Hi' * 13)
