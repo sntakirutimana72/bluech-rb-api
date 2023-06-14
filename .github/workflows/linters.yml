@@ -4,8 +4,6 @@ on: pull_request
 
 env:
   FORCE_COLOR: 1
-  POSTGRES_USER: postgres
-  POSTGRES_PASSWORD: postgres
 
 jobs:
   rubocop:
@@ -30,8 +28,6 @@ jobs:
       postgres:
         image: postgres:14
         env:
-          POSTGRES_HOST_AUTH_METHOD: trust
-          POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         ports:
           - 5432:5432
@@ -45,9 +41,17 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.2
+      - name: Install dependencies
+        run: |
+          sudo apt install -y libpq-dev
+          gem install bundler
       - name: Bundle gems
         run: bundle install
-      - name: Prepare database
+      - name: Setup database
+        env:
+          DB_USER: postgres
+          DB_PASSWORD: postgres
+          RAILS_ENV: test
         run: rake db:prepare
       - name: Run specs
         run: rspec
