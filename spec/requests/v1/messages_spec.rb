@@ -79,10 +79,7 @@ RSpec.describe V1::MessagesController, type: :request do
 
     context 'with right authorization & membership' do
       it 'successfully retrieved chats' do
-        get(
-          v1_chats_quarter_messages_path(@quarter),
-          headers: @headers
-        )
+        get(v1_chats_quarter_messages_path(@quarter), headers: @headers)
         expect(response).to have_http_status(:success)
       end
 
@@ -90,8 +87,7 @@ RSpec.describe V1::MessagesController, type: :request do
         post(
           v1_chats_quarter_messages_path(@quarter),
           headers: @headers,
-          params: msg_params(desc: ''),
-          as: :json
+          params: msg_params(desc: ''), as: :json
         )
         expect(response).to have_http_status(:unprocessable_entity)
       end
@@ -100,21 +96,19 @@ RSpec.describe V1::MessagesController, type: :request do
         post(
           v1_chats_quarter_messages_path(@quarter),
           headers: @headers,
-          params: msg_params,
-          as: :json
+          params: msg_params, as: :json
         )
         expect(response).to have_http_status(:created)
       end
 
       it 'ChatsRelayJob to enqueue a job' do
-        expect {
+        expect do
           post(
             v1_chats_quarter_messages_path(@quarter),
             headers: @headers,
-            params: msg_params,
-            as: :json
+            params: msg_params, as: :json
           )
-        }.to have_enqueued_job(ChatsRelayJob)
+        end.to have_enqueued_job(ChatsRelayJob)
       end
     end
   end

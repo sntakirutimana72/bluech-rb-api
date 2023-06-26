@@ -42,13 +42,13 @@ RSpec.describe V1::ChatsQuartersController, type: :request do
   end
 
   it 'ChatsQuarterUpdaterJob to enqueue a job' do
-    expect {
+    expect do
       post(
         v1_chats_quarters_path,
         headers: @headers,
         params: { peer_id: @users.last.id },
         as: :json
       )
-    }.to have_enqueued_job(ChatsQuarterUpdaterJob)
+    end.to have_enqueued_job(ChatsQuarterUpdaterJob)
   end
 end

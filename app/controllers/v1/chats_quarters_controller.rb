@@ -15,17 +15,17 @@ module V1
 
     def acquire_peer
       @peer = User.find_by(id: params[:peer_id])
-      if @peer.nil?
-        as_unprocessable(message: "Resource with :peer_id => #{params[:peer_id]} not found")
-      end
+      return unless @peer.nil?
+
+      as_unprocessable(message: "Resource with :peer_id => #{params[:peer_id]} not found")
     end
 
     def not_acquainted?
       peers = [current_user, @peer]
       @quarter = ChatsQuarter
-                   .joins(:memberships)
-                   .where(memberships: { user_id: peers.map(&:id) })
-                   .find { |cq| ( peers & cq.members ).many? }
+        .joins(:memberships)
+        .where(memberships: { user_id: peers.map(&:id) })
+        .find { |cq| (peers & cq.members).many? }
       @quarter.nil?
     end
   end

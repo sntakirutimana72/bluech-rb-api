@@ -10,9 +10,11 @@ module Users
     end
 
     def respond_with(resource, _ = {})
-      return as_created(
-        user: UserSerializer.new(resource), message: 'Signed up successfully.'
-      ) if resource.persisted?
+      if resource.persisted?
+        return as_created(
+          user: UserSerializer.new(resource), message: 'Signed up successfully.'
+        )
+      end
 
       as_unprocessable(
         message: "User couldn't be created successfully.", error: resource.errors
