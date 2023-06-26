@@ -24,7 +24,7 @@ gem 'rubocop', '>= 1.0', '< 2.0'
 # gem "kredis"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
-# gem "bcrypt", "~> 3.1.7"
+gem "bcrypt", "~> 3.1.7"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
@@ -36,13 +36,24 @@ gem 'bootsnap', require: false
 # gem "image_processing", "~> 1.2"
 
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
-# gem "rack-cors"
+gem "rack-cors"
+
+# Use Active Record Model serializer
+gem 'active_model_serializers'
+
+# Use Devise engine for authentication
+gem 'devise', '~> 4.8'
+
+# Use Devise JWT engine for API authentication
+gem 'devise-jwt', '~> 0.10.0'
+
+# Use CanCanCan for resources authorization
+gem 'cancancan', '~> 3.4'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem 'debug', platforms: %i[mri mingw x64_mingw]
   gem 'dotenv-rails'
-  gem 'rails-controller-testing'
   gem 'rspec-rails'
 end
 
@@ -52,5 +63,7 @@ group :development do
 end
 
 group :test do
+  gem 'capybara'
   gem 'shoulda-matchers', '~> 5.0'
+  gem 'action-cable-testing'
 end
