@@ -1,41 +1,47 @@
 require 'rails_helper'
 
 RSpec.describe Message, type: :model do
-  before do
-    @usr = User.new(name: 'test_sender')
-    @rusr = User.new(name: 'test_recipient')
-  end
-
-  describe 'With_valid_arguments' do
-    subject do
-      described_class.new(desc: 'Hey!', sender: @usr, recipient: @rusr)
-    end
-
-    it { should be_valid }
-    it { expect(subject.desc.length).to be >= 1 }
-    it { expect(subject.sender).to be(@usr) }
-    it { expect(subject.recipient).to be(@rusr) }
-  end
-
   describe 'Associations' do
-    it { should belong_to(:sender) }
-    it { should belong_to(:recipient) }
+    it { should belong_to(:author) }
+    it { should belong_to(:channel) }
   end
 
-  describe 'With_invalid_arguments' do
-    it do
-      without_desc = described_class.new(sender: @usr, recipient: @rusr)
-      expect(without_desc).to_not be_valid
+  describe 'Shared Parameters' do
+    before(:context) do
+      @user_x, @user_y = ActiveRecordTestHelpers::FactoryUser.many(2)
+      @channel = ChatsQuarter.create
+      @channel.members << @user_y
     end
 
-    it do
-      without_sender = described_class.new(desc: 'Hi', recipient: @rusr)
-      expect(without_sender).to_not be_valid
+    after(:context) do
+      purge_all_records
     end
 
-    it do
-      without_rec = described_class.new(desc: 'Hi', sender: @usr)
-      expect(without_rec).to_not be_valid
+    describe 'When valid' do
+      subject do
+        described_class.new(desc: 'Hey!', author: @user_y, channel: @channel)
+      end
+
+      it { should be_valid }
+    end
+
+    describe 'When invalid' do
+      it 'without :membership' do
+        expect(described_class.new(desc: 'Hi', author: @user_x, channel: @channel)).to_not be_valid
+      end
+
+      it 'without :author' do
+        expect(described_class.new(desc: 'Hey!', channel: @channel)).to_not be_valid
+      end
+
+      it 'without :channel' do
+        expect(described_class.new(desc: 'Hey!', author: @user_y)).to_not be_valid
+      end
+
+      it 'bad :desc' do
+        expect(described_class.new(author: @user_y, channel: @channel)).not_to be_valid
+        expect(described_class.new(desc: '', author: @user_y, channel: @channel)).not_to be_valid
+      end
     end
   end
 end
