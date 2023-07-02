@@ -2,7 +2,7 @@ module Users
   class SessionsController < Devise::SessionsController
     include Responsible
 
-    protected
+    private
 
     def respond_with(resource, _ = {})
       as_success(
@@ -13,7 +13,7 @@ module Users
     def respond_to_on_destroy
       return as_success(message: 'Logged out successfully.') if current_user
 
-      as_unauthorized(message: 'Could not find an active session.')
+      as_unauthorized(error: 'Could not find an active session.')
     end
   end
 end
