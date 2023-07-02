@@ -3,14 +3,12 @@ module V1
     before_action :load_resource
 
     def index
-      as_success(
-        chats: ChatsSerializer.new(@quarter.chats, each_serializer: MessageSerializer)
-      )
+      as_success(chats: ListSerializer.new(@quarter.chats))
     end
 
     def create
       @message = Message.new(create_params)
-      return as_unprocessable(errors: @message.errors) unless @message.save
+      return as_unprocessable(error: format_resource_errors(@message)) unless @message.save
 
       ChatsRelayJob.relay(@quarter, @message)
       head :created
@@ -22,10 +20,10 @@ module V1
       @quarter = ChatsQuarter.find_by(id: params[:chats_quarter_id])
       if @quarter.nil?
         as_unavailable(
-          message: "Resource with :chats_quarter_id => #{params[:chats_quarter_id]} not found"
+          error: "Resource with :chats_quarter_id => #{params[:chats_quarter_id]} not found"
         )
       elsif !@quarter.member?(current_user)
-        as_unauthorized(message: 'Not authorized to access resource')
+        as_unauthorized(error: 'Not authorized to access resource')
       end
     end
 

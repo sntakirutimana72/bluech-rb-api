@@ -6,6 +6,6 @@ class ChatsQuarterUpdaterJob < ApplicationJob
   end
 
   def self.notify(resource, user)
-    perform_later(user, QuarterSerializer.new(resource).as_json)
+    perform_later(user, ChatsQuarterSerializer.new(resource).as_json)
   end
 end
