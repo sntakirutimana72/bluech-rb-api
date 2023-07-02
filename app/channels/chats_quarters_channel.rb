@@ -1,6 +1,4 @@
 class ChatsQuartersChannel < ApplicationCable::Channel
-  include Nameable::Peer2PeerNomenclature
-
   def subscribed
     activate_memberships
   end
