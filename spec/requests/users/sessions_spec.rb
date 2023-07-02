@@ -1,44 +1,34 @@
 require 'rails_helper'
 
 RSpec.describe Users::SessionsController, type: :request do
-  after do
+  after(:context) do
     purge_all_records
   end
 
-  describe 'Login' do
-    describe 'When invalid credentials' do
-      it 'when no user account' do
-        post(
-          user_session_path,
-          params: auth_params(ActiveRecordTestHelpers::FactoryUser.any_options)
-        )
-        expect(response).to have_http_status(:unauthorized)
-      end
+  context '/users/login' do
+    it 'when no user account' do
+      post(
+        user_session_path,
+        params: auth_params(ActiveRecordTestHelpers::FactoryUser.any_options)
+      )
+      expect(response).to have_http_status(:unauthorized)
+    end
 
-      it 'when wrong password' do
-        user = ActiveRecordTestHelpers::FactoryUser.any
-        user.password = nil
-        post(user_session_path, params: auth_params(user))
-        expect(response).to have_http_status(:unauthorized)
-      end
+    it 'when wrong password' do
+      user = ActiveRecordTestHelpers::FactoryUser.any
+      user.password = nil
+      post(user_session_path, params: auth_params(user))
+      expect(response).to have_http_status(:unauthorized)
     end
 
     it 'Signed in successfully' do
-      user = ActiveRecordTestHelpers::FactoryUser.any
-      post(
-        user_session_path,
-        params: auth_params(user)
-      )
+      user = ActiveRecordTestHelpers::FactoryUser.any(email: 'wow_user@email.test')
+      post(user_session_path, params: auth_params(user))
       expect(response).to have_http_status(:ok)
     end
   end
 
-  describe 'Logout' do
-    it 'when no active session' do
-      delete(destroy_user_session_path)
-      expect(response).to have_http_status(:unauthorized)
-    end
-
+  context '/users/logout' do
     let(:logout) do
       lambda { |status|
         delete(destroy_user_session_path, headers: @headers)
@@ -46,13 +36,22 @@ RSpec.describe Users::SessionsController, type: :request do
       }
     end
 
+    before(:context) do
+      @user = ActiveRecordTestHelpers::FactoryUser.any
+    end
+
+    it 'when no active session' do
+      delete(destroy_user_session_path)
+      expect(response).to have_http_status(:unauthorized)
+    end
+
     it 'logged out successfully' do
-      authorize
+      authorize(@user)
       logout.call(:success)
     end
 
     it 'when logging out twice' do
-      authorize
+      authorize(@user)
       logout.call(:success)
       logout.call(:unauthorized)
     end
