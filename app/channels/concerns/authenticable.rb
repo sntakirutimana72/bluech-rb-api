@@ -6,7 +6,8 @@ module Authenticable
 
     def verify_authenticity
       jwt_payload = JWT.decode(
-        request.headers[:Authorization].split.last,
+        # request.headers[:Authorization].split.last,
+        request.query_parameters['X-Token'].split.last,
         Rails.application.credentials.fetch(:devise_jwt_secret)
       ).first
       User.find_by!(jti: jwt_payload['jti'])
