@@ -7,23 +7,23 @@ module Responsible
     render(json: options, status:)
   end
 
-  def as_created(*options)
-    as_success(*options, status: :created)
+  def as_created(**options)
+    as_success(**options, status: :created)
   end
 
-  def as_found(*options)
-    as_success(*options, status: :found)
+  def as_found(**options)
+    as_success(**options, status: :found)
   end
 
-  def as_unauthorized(*options)
-    as_success(*options, status: :unauthorized)
+  def as_unauthorized(**options)
+    as_success(**options, status: :unauthorized)
   end
 
-  def as_unavailable(*options)
-    as_success(*options, status: :not_found)
+  def as_unavailable(**options)
+    as_success(**options, status: :not_found)
   end
 
-  def as_unprocessable(*options)
-    as_success(*options, status: :unprocessable_entity)
+  def as_unprocessable(**options)
+    as_success(**options, status: :unprocessable_entity)
   end
 end
