@@ -10,9 +10,8 @@ RSpec.describe User, type: :model do
   end
 
   describe 'Associations' do
-    it { should have_many(:memberships) }
+    it { should have_many(:inbounds) }
     it { should have_many(:messages) }
-    it { should have_many(:quarters) }
   end
 
   describe 'When arguments are invalid' do

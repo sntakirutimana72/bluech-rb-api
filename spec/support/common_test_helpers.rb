@@ -4,7 +4,7 @@ module CommonTestHelpers
       @body = digest(fixture_type)
     end
 
-    protected
+    private
 
     def digest(type)
       case type

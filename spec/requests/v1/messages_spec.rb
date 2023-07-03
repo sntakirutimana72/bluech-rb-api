@@ -2,13 +2,15 @@ require 'rails_helper'
 
 RSpec.describe V1::MessagesController, type: :request do
   before(:context) do
+    purge_all_records
     @users = ActiveRecordTestHelpers::FactoryUser.many(3)
-    @quarter = ChatsQuarter.create(name: 'quarter_x_y')
-    @quarter.members.push(*@users[..1])
-
-    @messages_size = 0
-    @users[..1].each do |author|
-      @messages_size += ActiveRecordTestHelpers::FactoryMessage.many(2, author:, channel: @quarter).size
+    @msg_size = 0
+    @users[1..].each do |author|
+      @msg_size += 2
+      ActiveRecordTestHelpers::FactoryMessage.any(
+        author:, recipient: @users.first
+      )
+      ActiveRecordTestHelpers::FactoryMessage.any(author: @users.first, recipient: author)
     end
   end
 
@@ -16,100 +18,54 @@ RSpec.describe V1::MessagesController, type: :request do
     purge_all_records
   end
 
-  describe 'Unauthorized' do
-    it 'GET /v1/quarters/chats/:chats_quarter_id/messages' do
-      get v1_chats_quarter_messages_path(@quarter)
+  context 'When no authorization' do
+    it 'GET /v1/messages' do
+      get v1_messages_path
       expect(response).to have_http_status(:unauthorized)
     end
 
-    it 'POST /v1/quarters/chats/:chats_quarter_id/messages' do
-      post(
-        v1_chats_quarter_messages_path(@quarter),
-        params: msg_params,
-        as: :json
-      )
+    it 'POST /v1/messages' do
+      post(v1_messages_path, params: msg_params, as: :json)
       expect(response).to have_http_status(:unauthorized)
     end
   end
 
-  describe 'Authorized but with bad params' do
+  context 'When authorized' do
     before(:context) { authorize(@users.first) }
 
-    context "Quarter doesn't exist" do
-      it 'retrieve chats' do
-        get(
-          v1_chats_quarter_messages_path(0),
-          headers: @headers
-        )
-        expect(response).to have_http_status(:not_found)
-      end
-
-      it 'direct message' do
-        post(
-          v1_chats_quarter_messages_path(0),
-          headers: @headers,
-          params: msg_params,
-          as: :json
-        )
-        expect(response).to have_http_status(:not_found)
-      end
+    it 'fetches chats' do
+      get(v1_messages_path, headers: @headers)
+      load_body(:request)
+      expect(response).to have_http_status(:success)
+      expect(@body['chats'].size).to eq(@msg_size)
     end
 
-    context 'no membership' do
-      before(:context) { authorize(@users.last) }
-
-      it 'retrieve chats' do
-        get(
-          v1_chats_quarter_messages_path(@quarter),
-          headers: @headers
-        )
-        expect(response).to have_http_status(:unauthorized)
-      end
-
-      it 'direct message' do
-        post(
-          v1_chats_quarter_messages_path(@quarter),
-          headers: @headers,
-          params: msg_params,
-          as: :json
-        )
-        expect(response).to have_http_status(:unauthorized)
-      end
+    it 'fails to create new message, bad :desc' do
+      post(
+        v1_messages_path,
+        headers: @headers,
+        params: msg_params(desc: '', recipient_id: @users.last.id), as: :json
+      )
+      expect(response).to have_http_status(:unprocessable_entity)
     end
 
-    context 'with right authorization & membership' do
-      it 'successfully retrieved chats' do
-        get(v1_chats_quarter_messages_path(@quarter), headers: @headers)
-        expect(response).to have_http_status(:success)
-      end
+    it 'successfully created new message' do
+      post(
+        v1_messages_path,
+        headers: @headers,
+        params: msg_params(recipient_id: @users.last.id), as: :json
+      )
+      expect(response).to have_http_status(:created)
+    end
 
-      it 'message not created' do
+    it 'ChatsJob to enqueue a job' do
+      expect do
         post(
-          v1_chats_quarter_messages_path(@quarter),
+          v1_messages_path,
           headers: @headers,
-          params: msg_params(desc: ''), as: :json
+          params: msg_params(recipient_id: @users.last.id), as: :json
         )
-        expect(response).to have_http_status(:unprocessable_entity)
-      end
-
-      it 'created successfully direct message' do
-        post(
-          v1_chats_quarter_messages_path(@quarter),
-          headers: @headers,
-          params: msg_params, as: :json
-        )
-        expect(response).to have_http_status(:created)
-      end
-
-      it 'ChatsRelayJob to enqueue a job' do
-        expect do
-          post(
-            v1_chats_quarter_messages_path(@quarter),
-            headers: @headers,
-            params: msg_params, as: :json
-          )
-        end.to have_enqueued_job(ChatsJob)
-      end
+      end.to have_enqueued_job(ChatsRelayJob).on_queue(:default)
     end
   end
 end
