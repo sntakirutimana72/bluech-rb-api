@@ -10,9 +10,7 @@ Rails.application.routes.draw do
   end
 
   namespace :v1 do
-    resources :chats_quarters, only: %i( index create ) do
-      resources :messages, only: %i( index create )
-    end
+    resources :messages, only: %i( index create )
   end
 
   mount ActionCable.server => '/cable'
