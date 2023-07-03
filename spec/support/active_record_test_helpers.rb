@@ -34,7 +34,7 @@ module ActiveRecordTestHelpers
         options[:author] = ActiveRecordTestHelpers::FactoryUser.any
       end
 
-      Message.create!(options)
+      Message.create!(any_options(options))
     end
 
     def self.many(num, options = {})
@@ -46,8 +46,6 @@ module ActiveRecordTestHelpers
 
   def purge_all_records
     Message.destroy_all
-    Membership.destroy_all
-    ChatsQuarter.destroy_all
     User.destroy_all
   end
 end
