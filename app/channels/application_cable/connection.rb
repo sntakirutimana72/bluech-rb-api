@@ -8,7 +8,7 @@ module ApplicationCable
       self.current_user = verify_authenticity
     end
 
-    def destroy
+    def disconnect
       self.current_user = nil
     end
   end
