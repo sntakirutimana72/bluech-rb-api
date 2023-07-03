@@ -8,6 +8,6 @@ class ChatsChannel < ApplicationCable::Channel
   end
 
   def typing(payload)
-    ChatsJob.typing(payload, current_user)
+    ChatsRelayJob.typing(payload, current_user)
   end
 end
