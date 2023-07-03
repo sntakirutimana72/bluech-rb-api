@@ -2,7 +2,7 @@ class ChatsJob < ApplicationJob
   queue_as :default
 
   def perform(channel, message)
-    ChatsQuartersChannel.broadcast_to channel, message
+    ChatsChannel.broadcast_to channel, message
   end
 
   def self.relay(channel, resource)

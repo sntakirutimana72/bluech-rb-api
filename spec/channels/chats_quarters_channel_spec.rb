@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe ChatsQuartersChannel, type: :channel do
+RSpec.describe ChatsChannel, type: :channel do
   before do
     stub_connection(current_user: @current_user)
   end

@@ -1,4 +1,4 @@
-class ChatsQuartersChannel < ApplicationCable::Channel
+class ChatsChannel < ApplicationCable::Channel
   def subscribed
     stream_for(current_user)
   end
