@@ -45,6 +45,7 @@ RSpec.configure do |config|
 
   # Include JWT Authorization Test Helpers only in [:request] test fixtures
   config.include CommonTestHelpers::HttpParams, type: :request
+  config.include CommonTestHelpers::HttpParams, type: :channel
 
   # Include Parsers Test Helpers only in [:request] test fixtures
   config.include CommonTestHelpers::Parsers, type: :request
