@@ -3,35 +3,29 @@ module V1
     before_action :load_resource
 
     def index
-      as_success(chats: ListSerializer.new(@quarter.chats))
+      @chats = Message.where('author_id = ? or recipient_id = ?', current_user.id)
+      as_success(chats: ListSerializer.new(@chats))
     end
 
     def create
       @message = Message.new(create_params)
       return as_unprocessable(error: format_resource_errors(@message)) unless @message.save
 
-      ChatsJob.relay(@quarter, @message)
+      ChatsJob.relay(@recipient, @message)
       head :created
     end
 
     private
 
     def load_resource
-      @quarter = ChatsQuarter.find_by(id: params[:chats_quarter_id])
-      if @quarter.nil?
-        as_unavailable(
-          error: "Resource with :chats_quarter_id => #{params[:chats_quarter_id]} not found"
-        )
-      elsif !@quarter.member?(current_user)
-        as_unauthorized(error: 'Not authorized to access resource')
-      end
+      @recipient = User.find_by(id: params[:message][:recipient_id])
     end
 
     def create_params
       params
         .require(:message)
         .permit(:desc)
-        .merge(author: current_user, channel: @quarter)
+        .merge(author: current_user, recipient: @recipient)
     end
   end
 end
