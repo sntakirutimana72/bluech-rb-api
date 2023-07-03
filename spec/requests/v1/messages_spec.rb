@@ -108,7 +108,7 @@ RSpec.describe V1::MessagesController, type: :request do
             headers: @headers,
             params: msg_params, as: :json
           )
-        end.to have_enqueued_job(ChatsRelayJob)
+        end.to have_enqueued_job(ChatsJob)
       end
     end
   end

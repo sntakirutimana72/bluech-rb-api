@@ -11,7 +11,7 @@ module V1
 
       @quarter = ChatsQuarter.create
       @quarter.members.push(current_user, @peer)
-      ChatsQuarterUpdaterJob.notify(@quarter, @peer)
+      ChatsJob.notify(@quarter, @peer)
       as_created(quarter: ChatsQuarterSerializer.new(@quarter))
     end
 

@@ -9,16 +9,10 @@ module Users
       super(resource, store: false)
     end
 
-    def respond_with(resource, _ = {})
-      if resource.persisted?
-        as_created(
-          user: UserSerializer.new(resource), message: 'Signed up successfully.'
-        )
-      else
-        as_unprocessable(
-          error: format_resource_errors(resource)
-        )
-      end
+    def respond_with(res, _ = {})
+      return as_unprocessable(error: format_resource_errors(res)) unless res.persisted?
+
+      as_created(user: UserSerializer.new(res), message: 'Signed up successfully.')
     end
   end
 end

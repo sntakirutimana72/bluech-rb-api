@@ -10,7 +10,7 @@ module V1
       @message = Message.new(create_params)
       return as_unprocessable(error: format_resource_errors(@message)) unless @message.save
 
-      ChatsRelayJob.relay(@quarter, @message)
+      ChatsJob.relay(@quarter, @message)
       head :created
     end
 
