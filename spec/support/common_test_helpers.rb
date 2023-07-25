@@ -1,13 +1,13 @@
 module CommonTestHelpers
   module Parsers
-    def load_body(fixture_type)
-      @body = digest(fixture_type)
+    def load_body(fixture)
+      @body = digest(fixture)
     end
 
     private
 
-    def digest(type)
-      case type
+    def digest(fixture)
+      case fixture
       when :request
         JSON.parse(response.body)
       when :feature
