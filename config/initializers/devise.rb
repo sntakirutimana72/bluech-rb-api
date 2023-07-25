@@ -319,7 +319,6 @@ Devise.setup do |config|
       ['POST', %r{^/users/login$}],
       ['HEAD', %r{^/users/refresh_session$}],
       ['GET', %r{^/users/signed_user$}],
-      ['GET', %r{^/users/account$}]
     ]
     jwt.revocation_requests = [
       ['DELETE', %r{^/users/logout$}]
