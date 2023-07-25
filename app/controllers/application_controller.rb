@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::API
   include ActionController::MimeResponds
+  include Pagy::Backend
   include Responsible
 
   before_action :authenticate_user!

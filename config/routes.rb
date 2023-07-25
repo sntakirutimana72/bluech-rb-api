@@ -6,6 +6,7 @@ Rails.application.routes.draw do
     get '/users/signed_user', to: 'users/accounts#signed_user', as: :session_signed_user
     post '/users/login', to: 'users/sessions#create', as: :user_session
     post '/users', to: 'users/registrations#create', as: :user_registration
+    get '/users', to: 'users/people#index', as: :people_repo
     delete '/users/logout', to: 'users/sessions#destroy', as: :destroy_user_session
   end
 
