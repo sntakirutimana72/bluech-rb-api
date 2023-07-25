@@ -13,6 +13,10 @@ RSpec.describe Users::AccountsController, type: :request do
     expect(response).to have_http_status(:ok)
     token = response.headers['Authorization']
     expect(token).to be_a(String)
+  end
+
+  let(:assert_user_info_with_auth) do
+    assert_user_info
     expect(token).not_to eq(@headers[:Authorization])
   end
 
@@ -39,7 +43,7 @@ RSpec.describe Users::AccountsController, type: :request do
     it 'successfully refreshed' do
       authorize(@user)
       head(refresh_user_session_path, headers: @headers)
-      assert_user_info
+      assert_user_info_with_auth
     end
 
     it 'fails on authentication' do
@@ -53,7 +57,7 @@ RSpec.describe Users::AccountsController, type: :request do
     it 'successfully refreshed' do
       authorize(@user)
       get(session_signed_user_path, headers: @headers)
-      assert_user_info
+      assert_user_info_with_auth
     end
 
     it 'fails on authentication' do
