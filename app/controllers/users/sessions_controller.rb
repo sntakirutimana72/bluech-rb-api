@@ -5,9 +5,7 @@ module Users
     private
 
     def respond_with(resource, _ = {})
-      as_success(
-        user: UserSerializer.new(resource), message: 'Signed in successfully.'
-      )
+      as_success(user: UserSerializer.new(resource), message: 'Signed in successfully.')
     end
 
     def respond_to_on_destroy
