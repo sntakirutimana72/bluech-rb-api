@@ -11,6 +11,7 @@ Rails.application.routes.draw do
   end
 
   namespace :v1 do
+    get '/inbox', to: 'inbox#index', as: :inbox
     resources :messages, only: %i( index create )
   end
 
