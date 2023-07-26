@@ -16,7 +16,7 @@ RSpec.describe V1::MessagesController, type: :request do
     purge_all_records
   end
 
-  context 'When no authorization' do
+  describe 'When no authorization' do
     it 'GET /v1/messages' do
       get v1_messages_path
       expect(response).to have_http_status(:unauthorized)
@@ -28,16 +28,12 @@ RSpec.describe V1::MessagesController, type: :request do
     end
   end
 
-  context 'When authorized' do
+  describe 'When authorized' do
     before(:context) { authorize(@me) }
 
     it 'successfully loads conversation history' do
       channel = @users.last
-      get(
-        v1_messages_path,
-        headers: @headers,
-        params: { convo: { channel: channel.id } }
-      )
+      get(v1_messages_path, headers: @headers, params: { convo: { channel: channel.id } })
       expect(response).to have_http_status(:success)
       all_counts = (channel.inbounds.where(author: @me) + channel.messages.where(recipient: @me)).count
       expected_pages_count = (all_counts / 50.to_f).ceil
@@ -53,30 +49,21 @@ RSpec.describe V1::MessagesController, type: :request do
     end
 
     it 'fails to create new message, bad :desc' do
-      post(
-        v1_messages_path,
-        headers: @headers,
-        params: msg_params(desc: '', recipient_id: @users.last.id), as: :json
-      )
+      post(v1_messages_path, headers: @headers,
+                             params: msg_params(desc: '', recipient_id: @users.last.id), as: :json)
       expect(response).to have_http_status(:unprocessable_entity)
     end
 
     it 'successfully created new message' do
-      post(
-        v1_messages_path,
-        headers: @headers,
-        params: msg_params(recipient_id: @users.last.id), as: :json
-      )
+      post(v1_messages_path, headers: @headers,
+                             params: msg_params(recipient_id: @users.last.id), as: :json)
       expect(response).to have_http_status(:created)
     end
 
     it 'ChatsJob to enqueue a job' do
       expect do
-        post(
-          v1_messages_path,
-          headers: @headers,
-          params: msg_params(recipient_id: @users.last.id), as: :json
-        )
+        post(v1_messages_path, headers: @headers,
+                               params: msg_params(recipient_id: @users.last.id), as: :json)
       end.to have_enqueued_job(ChatsRelayJob).on_queue(:default)
     end
   end

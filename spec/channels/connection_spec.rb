@@ -7,7 +7,7 @@ RSpec.describe ApplicationCable::Connection, type: :channel do
 
   it 'successfully connects' do
     authorize
-    connect("/cable", headers: @headers)
+    connect('/cable', headers: @headers)
     expect(connection.current_user).to eq(@current_user)
   end
 end

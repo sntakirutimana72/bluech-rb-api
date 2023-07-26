@@ -31,9 +31,9 @@ module V1
     end
 
     def validate_convo_parameters
-      unless params[:convo].is_a?(ActionController::Parameters) && params[:convo][:channel].to_i.positive?
-        as_invalid(error: "Invalid <channel> param")
-      end
+      return if params[:convo].is_a?(ActionController::Parameters) && params[:convo][:channel].to_i.positive?
+
+      as_invalid(error: 'Invalid <channel> param')
     end
 
     def convo_params

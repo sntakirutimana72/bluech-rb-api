@@ -30,9 +30,7 @@ module ActiveRecordTestHelpers
     end
 
     def self.any(options = {})
-      unless options.key?(:author) || options.key?(:author_id)
-        options[:author] = ActiveRecordTestHelpers::FactoryUser.any
-      end
+      options[:author] = ActiveRecordTestHelpers::FactoryUser.any unless options.key?(:author) || options.key?(:author_id)
 
       Message.create!(any_options(options))
     end

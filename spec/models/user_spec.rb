@@ -17,7 +17,7 @@ RSpec.describe User, type: :model do
   describe 'When arguments are invalid' do
     it { expect(described_class.new).to_not be_valid }
 
-    context 'When :name is invalid' do
+    describe 'When :name is invalid' do
       it 'omitted' do
         options.delete(:name)
         expect(tmp_user).to_not be_valid
@@ -34,7 +34,7 @@ RSpec.describe User, type: :model do
       end
     end
 
-    context 'When :email is invalid' do
+    describe 'When :email is invalid' do
       it 'empty' do
         options[:email] = ''
         expect(tmp_user).to_not be_valid
@@ -51,7 +51,7 @@ RSpec.describe User, type: :model do
       end
     end
 
-    context 'When :password is invalid' do
+    describe 'When :password is invalid' do
       it 'empty' do
         options[:password] = ''
         expect(tmp_user).to_not be_valid

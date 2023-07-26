@@ -20,7 +20,7 @@ RSpec.describe Users::AccountsController, type: :request do
     expect(token).not_to eq(@headers[:Authorization])
   end
 
-  context '/users/account' do
+  describe '/users/account' do
     it 'when no authorization' do
       get user_profile_path
       expect(response).to have_http_status(:unauthorized)
@@ -39,7 +39,7 @@ RSpec.describe Users::AccountsController, type: :request do
     end
   end
 
-  context '/users/refresh_session' do
+  describe '/users/refresh_session' do
     it 'successfully refreshed' do
       authorize(@user)
       head(refresh_user_session_path, headers: @headers)
@@ -53,7 +53,7 @@ RSpec.describe Users::AccountsController, type: :request do
     end
   end
 
-  context '/users/signed_user' do
+  describe '/users/signed_user' do
     it 'successfully refreshed' do
       authorize(@user)
       get(session_signed_user_path, headers: @headers)

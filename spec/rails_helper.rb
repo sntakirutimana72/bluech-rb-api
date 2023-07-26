@@ -3,9 +3,9 @@ require 'spec_helper'
 ENV['RAILS_ENV'] ||= 'test'
 
 require_relative '../config/environment'
-require_relative './support/active_record_test_helpers'
-require_relative './support/authentication_test_helpers'
-require_relative './support/common_test_helpers'
+require_relative 'support/active_record_test_helpers'
+require_relative 'support/authentication_test_helpers'
+require_relative 'support/common_test_helpers'
 
 # Prevent database truncation if the environment is production
 abort('The Rails environment is running in production mode!') if Rails.env.production?

@@ -1,17 +1,16 @@
 require 'rails_helper'
 
 RSpec.describe Users::PeopleController, type: :request do
-  context 'GET /users' do
+  describe 'GET /users' do
     it 'fails without authorization' do
       get people_repo_path
-
       expect(response).to have_http_status(:unauthorized)
     end
 
-    context 'successfully retrieves people' do
+    describe 'successfully retrieves people' do
       before(:context) do
         @pagy_limit = 5
-        @count = @pagy_limit * 3 + 2
+        @count = (@pagy_limit * 3) + 2
         @people = ActiveRecordTestHelpers::FactoryUser.many(@count, 'peo')
       end
 

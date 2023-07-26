@@ -2,14 +2,14 @@ module Trackable
   extend ActiveSupport::Concern
 
   included do
-    scope :conversation, ->(options) do
+    scope :conversation, lambda { |options|
       where(
         '(author_id = :me AND recipient_id = :channel) OR (author_id = :channel AND recipient_id = :me)',
         options
       ).order(created_at: :desc)
-    end
+    }
 
-    scope :inbox, ->(rec_id) do
+    scope :inbox, lambda { |rec_id|
       select(
         :author_id,
         :desc,
@@ -26,6 +26,6 @@ module Trackable
         )
         .group(:author_id, :created_at, :desc)
         .order(created_at: :desc)
-    end
+    }
   end
 end

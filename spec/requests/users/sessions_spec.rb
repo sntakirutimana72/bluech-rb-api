@@ -5,7 +5,7 @@ RSpec.describe Users::SessionsController, type: :request do
     purge_all_records
   end
 
-  context '/users/login' do
+  describe '/users/login' do
     it 'when no user account' do
       post(
         user_session_path,
@@ -28,7 +28,7 @@ RSpec.describe Users::SessionsController, type: :request do
     end
   end
 
-  context '/users/logout' do
+  describe '/users/logout' do
     let(:logout) do
       lambda { |status|
         delete(destroy_user_session_path, headers: @headers)
