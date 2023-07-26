@@ -6,6 +6,42 @@ RSpec.describe Message, type: :model do
     it { should belong_to(:recipient) }
   end
 
+  describe 'Trackable' do
+    before(:context) do
+      users_meta = 5.times.map do |i|
+        { name: "Steve#{i + 1}", email: "steve#{i + 1}@gmail.com", password: 'pass@123' }
+      end
+      @people = User.create(users_meta)
+      recipient = @people.first
+      @people[1..].each do |author|
+        described_class.create(rand(1..5).times.map { |i| { desc: "Hi-#{i + 1}!", recipient:, author: } })
+      end
+    end
+
+    after(:context) { purge_all_records }
+
+    it 'successfully queries a conversation history' do
+      recipient = @people[1]
+      me = @people.first
+      out_count = me.messages.where(recipient:).count
+      in_count = me.inbounds.where(author: recipient).count
+      convo = described_class.conversation({ me: me.id, channel: recipient.id })
+
+      expect(convo.length).to eq(out_count + in_count)
+    end
+
+    it 'previews inbox' do
+      me = @people.first
+      inbox = described_class.inbox(me.id)
+      latest = InboxSerializer.new(inbox.first).as_json
+
+      expect(inbox.length).to eq(@people.length - 1)
+      fiq = described_class.where(author_id: latest[:id]).order(created_at: :desc)
+      expect(latest[:unread]).to eq(fiq.count)
+      expect(latest[:preview]).to eq(fiq.first.desc)
+    end
+  end
+
   describe 'Shared Parameters' do
     before(:context) do
       @user_x, @user_y = ActiveRecordTestHelpers::FactoryUser.many(2)
