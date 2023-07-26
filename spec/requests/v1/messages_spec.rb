@@ -2,15 +2,13 @@ require 'rails_helper'
 
 RSpec.describe V1::MessagesController, type: :request do
   before(:context) do
-    purge_all_records
-    @users = ActiveRecordTestHelpers::FactoryUser.many(3)
-    @msg_size = 0
+    max_count = 3
+    @users = ActiveRecordTestHelpers::FactoryUser.many(max_count, 'convo')
+    @me = @users.first
+    @msg_size = 2 * (max_count - 1)
     @users[1..].each do |author|
-      @msg_size += 2
-      ActiveRecordTestHelpers::FactoryMessage.any(
-        author:, recipient: @users.first
-      )
-      ActiveRecordTestHelpers::FactoryMessage.any(author: @users.first, recipient: author)
+      ActiveRecordTestHelpers::FactoryMessage.any(author:, recipient: @me, desc: 'Hey!')
+      ActiveRecordTestHelpers::FactoryMessage.any(author: @me, recipient: author)
     end
   end
 
@@ -31,13 +29,27 @@ RSpec.describe V1::MessagesController, type: :request do
   end
 
   context 'When authorized' do
-    before(:context) { authorize(@users.first) }
+    before(:context) { authorize(@me) }
 
-    it 'fetches chats' do
-      get(v1_messages_path, headers: @headers)
-      load_body(:request)
+    it 'successfully loads conversation history' do
+      channel = @users.last
+      get(
+        v1_messages_path,
+        headers: @headers,
+        params: { convo: { channel: channel.id } }
+      )
       expect(response).to have_http_status(:success)
-      expect(@body['chats'].size).to eq(@msg_size)
+      all_counts = (channel.inbounds.where(author: @me) + channel.messages.where(recipient: @me)).count
+      expected_pages_count = (all_counts / 50.to_f).ceil
+      expect(load_body(:request)).to include('chats')
+      expect(@body).to include('pagination')
+      expect(@body['pagination']['current']).to be(1)
+      expect(@body['pagination']['pages']).to be(expected_pages_count)
+    end
+
+    it 'fails to load conversation, when missing :channel param' do
+      get(v1_messages_path, headers: @headers, params: { convo: nil })
+      expect(response).to have_http_status(:bad_request)
     end
 
     it 'fails to create new message, bad :desc' do
