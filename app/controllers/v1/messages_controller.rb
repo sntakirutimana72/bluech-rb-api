@@ -1,7 +1,7 @@
 module V1
   class MessagesController < ApplicationController
     def index
-      @chats = Message.all_since({ id: current_user.id })
+      @meta, @chats = Message.conversation({ me: current_user.id, channel: params[:channel] })
       as_success(chats: ListSerializer.new(@chats))
     end
 
