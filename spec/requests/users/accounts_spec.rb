@@ -11,12 +11,12 @@ RSpec.describe Users::AccountsController, type: :request do
 
   let(:assert_user_info) do
     expect(response).to have_http_status(:ok)
-    token = response.headers['Authorization']
-    expect(token).to be_a(String)
   end
 
   let(:assert_user_info_with_auth) do
     assert_user_info
+    token = response.headers['Authorization']
+    expect(token).to be_a(String)
     expect(token).not_to eq(@headers[:Authorization])
   end
 
