@@ -23,11 +23,10 @@ RSpec.describe Message, type: :model do
     it 'successfully queries a conversation history' do
       recipient = @people[1]
       me = @people.first
-      out_count = me.messages.where(recipient:).count
-      in_count = me.inbounds.where(author: recipient).count
+      all_counts = (me.messages.where(recipient:) + me.inbounds.where(author: recipient)).count
       convo = described_class.conversation({ me: me.id, channel: recipient.id })
 
-      expect(convo.length).to eq(out_count + in_count)
+      expect(convo.length).to eq(all_counts)
     end
 
     it 'previews inbox' do
