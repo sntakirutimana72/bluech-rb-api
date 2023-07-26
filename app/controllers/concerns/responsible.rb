@@ -19,6 +19,10 @@ module Responsible
     as_success(**options, status: :unauthorized)
   end
 
+  def as_invalid(**options)
+    as_success(**options, status: :bad_request)
+  end
+
   def as_unavailable(**options)
     as_success(**options, status: :not_found)
   end
