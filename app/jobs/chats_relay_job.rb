@@ -13,7 +13,7 @@ class ChatsRelayJob < ApplicationJob
   end
 
   def self.typing(msg, user)
-    return unless (channel = User.find(msg.delete('channel_id')))
+    return unless (channel = User.find(msg.delete('channelId')))
 
     type = msg.delete('action')
 
