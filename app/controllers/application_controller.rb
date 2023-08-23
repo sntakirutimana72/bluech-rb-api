@@ -10,6 +10,10 @@ class ApplicationController < ActionController::API
 
   private
 
+  def paginate(options = {})
+    { current: options.page, pages: options.pages }
+  end
+
   def configure_permitted_parameters
     devise_parameter_sanitizer.permit(:sign_up, keys: %i[name])
   end
