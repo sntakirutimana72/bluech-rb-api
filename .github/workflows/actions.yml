@@ -52,7 +52,7 @@ jobs:
       - name: Bundle gems
         run: bundle install
       - name: Setup database
-        run: rake db:prepare
+        run: rake db:create db:migrate
       - name: Run specs
         run: rspec
 

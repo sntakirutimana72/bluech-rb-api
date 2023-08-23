@@ -9,7 +9,7 @@ AllCops:
     - "vendor/bundle/**/*"
   DisplayCopNames: true
 Layout/LineLength:
-  Max: 120
+  Max: 130
 Metrics/MethodLength:
   Include:
     - "app/controllers/*"
@@ -55,4 +55,7 @@ Style/HashEachMethods:
 Style/HashTransformKeys:
   Enabled: false
 Style/HashTransformValues:
+  Enabled: false
+
+Naming/MethodName:
   Enabled: false

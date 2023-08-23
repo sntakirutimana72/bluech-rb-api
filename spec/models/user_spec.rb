@@ -1,24 +1,76 @@
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
-  describe 'With_valid_arguments' do
-    subject { described_class.new(name: 'test_user') }
+  let(:options) { ActiveRecordTestHelpers::FactoryUser.any_options }
 
-    it { should be_valid }
+  let(:tmp_user) { described_class.new(options) }
+
+  it 'should be valid' do
+    expect(tmp_user).to be_valid
   end
 
   describe 'Associations' do
-    it { should have_many(:outbounds) }
     it { should have_many(:inbounds) }
+    it { should have_many(:messages) }
   end
 
-  describe 'With_invalid_arguments' do
+  describe 'When arguments are invalid' do
     it { expect(described_class.new).to_not be_valid }
-    it { expect(described_class.new(name: 'Hi')).to_not be_valid }
 
-    it do
-      instance = described_class.new(name: 'Hi' * 13)
-      expect(instance).to_not be_valid
+    describe 'When :name is invalid' do
+      it 'omitted' do
+        options.delete(:name)
+        expect(tmp_user).to_not be_valid
+      end
+
+      it 'too short' do
+        options[:name] = 'Hi'
+        expect(tmp_user).to_not be_valid
+      end
+
+      it 'too long' do
+        options[:name] = 'Hi' * 13
+        expect(tmp_user).to_not be_valid
+      end
+    end
+
+    describe 'When :email is invalid' do
+      it 'empty' do
+        options[:email] = ''
+        expect(tmp_user).to_not be_valid
+      end
+
+      it 'omitted' do
+        options.delete(:email)
+        expect(tmp_user).to_not be_valid
+      end
+
+      it 'broken pattern' do
+        options[:email] = 'hello@'
+        expect(tmp_user).to_not be_valid
+      end
+    end
+
+    describe 'When :password is invalid' do
+      it 'empty' do
+        options[:password] = ''
+        expect(tmp_user).to_not be_valid
+      end
+
+      it 'omitted' do
+        options.delete(:password)
+        expect(tmp_user).to_not be_valid
+      end
+
+      it 'too short' do
+        options[:password] = '123'
+        expect(tmp_user).to_not be_valid
+      end
+
+      it 'too long' do
+        options[:password] = '1' * 130
+        expect(tmp_user).to_not be_valid
+      end
     end
   end
 end
