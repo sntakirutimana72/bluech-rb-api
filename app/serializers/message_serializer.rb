@@ -1,13 +1,21 @@
 class MessageSerializer < ActiveModel::Serializer
-  attributes :id, :desc, :is_edited, :creation_date, :last_update
+  attributes :id, :desc, :isEdited, :isSeen, :createdAt, :updatedAt
 
   belongs_to :author, class_name: 'User', serializer: AuthorSerializer
 
-  def creation_date
+  def isEdited
+    object.is_edited
+  end
+
+  def isSeen
+    !!object.seen_at
+  end
+
+  def createdAt
     object.created_at
   end
 
-  def last_update
+  def updatedAt
     object.updated_at
   end
 end
