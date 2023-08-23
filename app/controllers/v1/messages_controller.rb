@@ -5,13 +5,8 @@ module V1
     def index
       @meta, @chats = pagy(Message.conversation(convo_params), page: page_num)
       as_success(
-        chats: ListSerializer.new(@chats),
-        pagination: {
-          previous: @meta.prev,
-          current: @meta.page,
-          next: @meta.next,
-          pages: @meta.pages
-        }
+        chats: ListSerializer.new(@chats, serializer: MessageSerializer),
+        pagination: paginate(@meta)
       )
     end
 
@@ -31,15 +26,15 @@ module V1
     end
 
     def validate_convo_parameters
-      return if params[:convo].is_a?(ActionController::Parameters) && params[:convo][:channel].to_i.positive?
+      return if params[:convo].is_a?(ActionController::Parameters) && params[:convo][:channelId].to_i.positive?
 
-      as_invalid(error: 'Invalid <channel> param')
+      as_invalid(error: ':channelId required')
     end
 
     def convo_params
       params
         .require(:convo)
-        .permit(:channel)
+        .permit(:channelId)
         .merge(me: current_user.id).to_h
     end
 
