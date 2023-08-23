@@ -4,7 +4,7 @@ module Trackable
   included do
     scope :conversation, lambda { |options|
       where(
-        '(author_id = :me AND recipient_id = :channel) OR (author_id = :channel AND recipient_id = :me)',
+        '(author_id = :me AND recipient_id = :channelId) OR (author_id = :channelId AND recipient_id = :me)',
         options
       ).order(created_at: :desc)
     }
