@@ -24,7 +24,7 @@ RSpec.describe Message, type: :model do
       recipient = @people[1]
       me = @people.first
       all_counts = (me.messages.where(recipient:) + me.inbounds.where(author: recipient)).count
-      convo = described_class.conversation({ me: me.id, channel: recipient.id })
+      convo = described_class.conversation({ me: me.id, channelId: recipient.id })
 
       expect(convo.length).to eq(all_counts)
     end

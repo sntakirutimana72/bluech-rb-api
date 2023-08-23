@@ -33,7 +33,7 @@ RSpec.describe V1::MessagesController, type: :request do
 
     it 'successfully loads conversation history' do
       channel = @users.last
-      get(v1_messages_path, headers: @headers, params: { convo: { channel: channel.id } })
+      get(v1_messages_path, headers: @headers, params: { convo: { channelId: channel.id } })
       expect(response).to have_http_status(:success)
       all_counts = (channel.inbounds.where(author: @me) + channel.messages.where(recipient: @me)).count
       expected_pages_count = (all_counts / 50.to_f).ceil
