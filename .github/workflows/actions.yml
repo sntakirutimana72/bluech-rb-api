@@ -7,7 +7,6 @@ env:
   DB_USER: postgres
   DB_PASSWORD: postgres
   RAILS_ENV: test
-  devise_jwt_secret: SOME_RANDOM_DEVISE_JWT_SECRET_KEY
   FORCE_COLOR: 1
 
 jobs:
@@ -53,7 +52,7 @@ jobs:
       - name: Bundle gems
         run: bundle install
       - name: Setup database
-        run: rake db:prepare
+        run: rake db:create db:migrate
       - name: Run specs
         run: rspec
 
