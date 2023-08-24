@@ -6,7 +6,7 @@ module Trackable
       where(
         '(author_id = :me AND recipient_id = :channelId) OR (author_id = :channelId AND recipient_id = :me)',
         options
-      ).order(created_at: :desc)
+      ).order(:created_at)
     }
 
     scope :inbox, lambda { |rec_id|
