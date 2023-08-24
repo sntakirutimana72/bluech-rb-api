@@ -14,7 +14,7 @@ def simulate_chat(i: Integer, rec: User, author: User)
 end
 
 # Generate users
-users = User.create(%w(Tester Steve Eve).map(&method(:simulate_user)))
+users = User.create(%w(Tester Steve Eve Erica Emmy Ibrahim).map(&method(:simulate_user)))
 
 # Pick a recipient user by random
 rec = users.first

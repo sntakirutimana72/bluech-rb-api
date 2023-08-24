@@ -9,7 +9,7 @@ RSpec.describe Users::PeopleController, type: :request do
 
     describe 'successfully retrieves people' do
       before(:context) do
-        @pagy_limit = 5
+        @pagy_limit = 50
         @count = (@pagy_limit * 3) + 2
         @people = ActiveRecordTestHelpers::FactoryUser.many(@count, 'peo')
       end
