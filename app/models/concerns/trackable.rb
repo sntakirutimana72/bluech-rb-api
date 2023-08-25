@@ -20,6 +20,7 @@ module Trackable
           'LEFT JOIN (select A.author_id from messages A WHERE seen_at IS NULL) AS CX ON CX.author_id = messages.author_id'
         )
         .where(recipient_id: rec_id)
+        .where.not(author_id: rec_id)
         .having(
           created_at: self.select('MAX(created_at)').group(:author_id),
           author_id: self.select('author_id').group(:author_id)
