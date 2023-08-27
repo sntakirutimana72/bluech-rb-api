@@ -8,19 +8,18 @@ RSpec.describe Message, type: :model do
 
   describe 'Trackable' do
     before(:context) do
-      users_meta = 5.times.map do |i|
-        { name: "Steve#{i + 1}", email: "steve#{i + 1}@gmail.com", password: 'pass@123' }
-      end
-      @people = User.create(users_meta)
+      generate_user = ->(name) { { name:, email: "#{name.downcase}@gmail.com", password: 'pass@123' }  }
+      @people = User.create(%w(Steve Jim Eric Zus Zoe).map(&generate_user) )
+
       recipient = @people.first
-      @people[1..].each do |author|
-        described_class.create(rand(1..5).times.map { |i| { desc: "Hi-#{i + 1}!", recipient:, author: } })
-      end
+      static_desc = %w(Hi Hello Hey Greetings Bonjour)
+      generate_msg = ->(num, author) { { desc: static_desc[num], recipient:, author: } }
+      @people[1..].each { |u| described_class.create(rand(1..5).times.map { |i| generate_msg.(i, u) }) }
     end
 
     after(:context) { purge_all_records }
 
-    it 'successfully queries a conversation history' do
+    it 'queries a conversation history' do
       recipient = @people[1]
       me = @people.first
       all_counts = (me.messages.where(recipient:) + me.inbounds.where(author: recipient)).count
@@ -29,15 +28,24 @@ RSpec.describe Message, type: :model do
       expect(convo.length).to eq(all_counts)
     end
 
-    it 'previews inbox' do
+    it 'queries inbox previews' do
       me = @people.first
       inbox = described_class.inbox(me.id)
       latest = InboxSerializer.new(inbox.first).as_json
 
       expect(inbox.length).to eq(@people.length - 1)
-      fiq = described_class.where(author_id: latest[:id]).order(created_at: :desc)
+      fiq = described_class.where(author_id: latest[:id], seen_at: nil).order(created_at: :desc)
       expect(latest[:unread]).to eq(fiq.count)
       expect(latest[:preview]).to eq(fiq.first.desc)
+    end
+
+    it 'inbox query does not include self-sent message previews' do
+      author = @people.first
+      inbox_count_before = described_class.inbox(author.id)&.length
+      described_class.create(author:, recipient: author, desc: 'Been better!')
+      inbox_count_after = described_class.inbox(author.id)&.length
+
+      expect(inbox_count_before).to eq(inbox_count_after)
     end
   end
 
