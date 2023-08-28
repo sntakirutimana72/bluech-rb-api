@@ -28,20 +28,22 @@ RSpec.describe ChatsChannel, type: :channel do
       expect(subscription).to have_stream_for(@current_user)
     end
 
-    it ':typing action enqueues a job' do
-      subscribe
-      expect do
-        perform(:typing, channelId: @peer.id)
-      end.to change(enqueued_jobs, :size).by(1)
-    end
+    describe ':typing action' do
+      it 'enqueues a job' do
+        subscribe
+        expect do
+          perform(:typing, channelId: @peer.id)
+        end.to change(enqueued_jobs, :size).by(1)
+      end
 
-    it ':typing action enqueues on :typing_jobs queue' do
-      subscribe
-      expect do
-        perform(:typing, channelId: @peer.id)
-      end.to have_enqueued_job
-        .with(@peer, { type: 'typing', author: AuthorSerializer.new(@current_user).as_json })
-        .on_queue(:typing_jobs)
+      it 'enqueues on :typing_jobs queue' do
+        subscribe
+        expect do
+          perform(:typing, channelId: @peer.id)
+        end.to have_enqueued_job
+                 .with(@peer, { type: 'typing', author: AuthorSerializer.new(@current_user).as_json })
+                 .on_queue(:typing_jobs)
+      end
     end
   end
 end

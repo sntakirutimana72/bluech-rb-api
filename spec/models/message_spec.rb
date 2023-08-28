@@ -65,6 +65,8 @@ RSpec.describe Message, type: :model do
       )
     end
 
+    after { purge_all_records }
+
     it '#mark_as_read all given ids referencing unread messages' do
       # Invoke #mark_as_read
       results = described_class.mark_as_read([all_ids.join(','), @author.id, @rec.id])
