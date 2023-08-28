@@ -2,8 +2,8 @@ module ActiveRecordTestHelpers
   class FactoryUser
     def self.any_options(options = {})
       {
-        name: 'any_user',
-        email: 'any_user@email.test',
+        name: 'Tester',
+        email: 'tester@gmail.com',
         password: 'pass@123',
         **options
       }
