@@ -12,12 +12,12 @@ class ChatsRelayJob < ApplicationJob
     )
   end
 
-  def self.read(channel_id, reader_id, ids = [])
+  def self.read(author_id:, recipient_id:, ids: [])
     return unless ids.length.positive?
 
-    channel = User.find(channel_id)
+    channel = User.find(author_id)
 
-    set(priority: 75).perform_later(channel, { type: 'read', readerId: reader_id, ids: })
+    set(priority: 75).perform_later(channel, { type: 'read', readerId: recipient_id, ids: })
   end
 
   def self.typing(msg, user)
