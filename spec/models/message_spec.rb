@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe Message, type: :model do
+  after(:context) { purge_all_records }
+
   describe 'Associations' do
     it { should belong_to(:author) }
     it { should belong_to(:recipient) }
@@ -16,8 +18,6 @@ RSpec.describe Message, type: :model do
       generate_msg = ->(num, author) { { desc: static_desc[num], recipient:, author: } }
       @people[1..].each { |u| described_class.create(rand(1..5).times.map { |i| generate_msg.(i, u) }) }
     end
-
-    after(:context) { purge_all_records }
 
     it 'queries a conversation history' do
       recipient = @people[1]
@@ -47,27 +47,40 @@ RSpec.describe Message, type: :model do
 
       expect(inbox_count_before).to eq(inbox_count_after)
     end
+  end
+
+  describe 'Readable' do
+    let(:all_ids) { described_class.where(author: @author, recipient: @rec).ids }
+
+    before do
+      @author = User.create(name: 'Tester-1', email: 'tester-1@gmail.com', password: 'pass@123')
+      @rec = User.create(name: 'Tester-2', email: 'tester-2@gmail.com', password: 'pass@123')
+
+      described_class.create(
+        [
+          {recipient: @rec, author: @author, desc: 'Test mark_as_read scope', seen_at: Time.now},
+          {recipient: @rec, author: @author, desc: 'Test mark_as_read scope'},
+          {recipient: @rec, author: @author, desc: 'Test mark_as_read scope'}
+        ]
+      )
+    end
 
     it '#mark_as_read all given ids referencing unread messages' do
-      # Define portraits
-      author = @people.first
-      recipient = @people[1]
-      # Ensure messages exchange between portraits
-      ids = described_class.create(
-        [
-          {recipient:, author:, desc: 'Test mark_as_read scope', seen_at: Time.now},
-          {recipient:, author:, desc: 'Test mark_as_read scope'},
-          {recipient:, author:, desc: 'Test mark_as_read scope'}
-        ]
-      ).map(&:id)
       # Invoke #mark_as_read
-      query_results = described_class.mark_as_read([ids.join(','), author.id, recipient.id])
-      marked_ids = query_results.rows.map(&:first)
+      results = described_class.mark_as_read([all_ids.join(','), @author.id, @rec.id])
+      marked_ids = results.rows.map(&:first)
       # Assert expectation
-      expect(ids).not_to eq(marked_ids)
-      expect(ids[1..]).to eq(marked_ids)
-      # clear after
-      described_class.where(id: ids).destroy_all
+      expect(all_ids).not_to eq(marked_ids)
+      expect(all_ids[1..]).to eq(marked_ids)
+    end
+
+    it '#mark_all_as_read marks all existing messages as seen' do
+      # Invoke #mark_all_as_read
+      results = described_class.mark_all_as_read([@author.id, @rec.id])
+      marked_ids = results.rows.map(&:first)
+      # Assert expectation
+      expect(all_ids).not_to eq(marked_ids)
+      expect(all_ids[1..]).to eq(marked_ids)
     end
   end
 
