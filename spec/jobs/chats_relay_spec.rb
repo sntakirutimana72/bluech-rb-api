@@ -32,18 +32,18 @@ describe ChatsRelayJob, type: :job do
   end
 
   describe ':read' do
-    let(:options) { {author_id: @peer.id, recipient_id: @current_user.id} }
+    let(:options) { {author_id: @peer.id, recipient_id: @current_user.id, ids: []} }
 
     it 'does not enqueue without :ids' do
-      expect { described_class.read(**options) }.not_to have_enqueued_job
+      expect { described_class.read(options) }.not_to have_enqueued_job
     end
 
     it 'enqueues a job on :default queue' do
-      ids = %w(1 2 3)
+      options[:ids] = %w(1 2 3)
       expect do
-        described_class.read(ids:, **options)
+        described_class.read(options)
       end.to have_enqueued_job
-               .with(@peer, { type: 'read', readerId: @current_user.id, ids: })
+               .with(@peer, { type: 'read', readerId: @current_user.id, ids: options[:ids] })
                .on_queue(:default)
     end
   end
