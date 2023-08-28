@@ -47,6 +47,28 @@ RSpec.describe Message, type: :model do
 
       expect(inbox_count_before).to eq(inbox_count_after)
     end
+
+    it '#mark_as_read all given ids referencing unread messages' do
+      # Define portraits
+      author = @people.first
+      recipient = @people[1]
+      # Ensure messages exchange between portraits
+      ids = described_class.create(
+        [
+          {recipient:, author:, desc: 'Test mark_as_read scope', seen_at: Time.now},
+          {recipient:, author:, desc: 'Test mark_as_read scope'},
+          {recipient:, author:, desc: 'Test mark_as_read scope'}
+        ]
+      ).map(&:id)
+      # Invoke #mark_as_read
+      query_results = described_class.mark_as_read([ids.join(','), author.id, recipient.id])
+      marked_ids = query_results.rows.map(&:first)
+      # Assert expectation
+      expect(ids).not_to eq(marked_ids)
+      expect(ids[1..]).to eq(marked_ids)
+      # clear after
+      described_class.where(id: ids).destroy_all
+    end
   end
 
   describe 'Shared Parameters' do
