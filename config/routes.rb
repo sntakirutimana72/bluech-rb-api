@@ -12,6 +12,7 @@ Rails.application.routes.draw do
 
   namespace :v1 do
     get '/inbox', to: 'inbox#index', as: :inbox
+    post '/messages/mark_as_read', to: 'messages#mark_as_read', as: :mark_as_read
     resources :messages, only: %i( index create )
   end
 
