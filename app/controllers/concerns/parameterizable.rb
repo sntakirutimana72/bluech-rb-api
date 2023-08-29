@@ -11,6 +11,10 @@ module Parameterizable
         .merge(author_id: params.dig(:convo, :authorId), recipient_id: current_user.id)
     end
 
+    def mark_all_as_read_params
+      { author_id: params.dig(:convo, :authorId), recipient_id: current_user.id }
+    end
+
     def page_num
       num = params.require(:convo)[:page].to_i
       num.zero? ? 1 : num

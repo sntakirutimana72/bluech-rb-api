@@ -2,7 +2,7 @@ module Users
   class RegistrationsController < Devise::RegistrationsController
     include Responsible
 
-    protected
+    private
 
     def sign_up(_, resource)
       # Prevent Devise from attempting to write to session store since it is disabled on API.

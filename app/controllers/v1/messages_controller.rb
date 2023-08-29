@@ -5,6 +5,7 @@ module V1
 
     before_action :validate_convo_params, only: :index
     before_action :validate_seen_params, only: :mark_as_read
+    before_action :validate_all_seen_params, only: :mark_all_as_read
 
     def index
       @meta, @chats = pagy(Message.conversation(convo_params), page: page_num)
@@ -27,6 +28,19 @@ module V1
       options[:ids] = options[:ids].join(',')
       options[:ids] = Message.mark_as_read(options.values).rows.map(&:first)
 
+      respond_to_mark_as_read(options)
+    end
+
+    def mark_all_as_read
+      options = mark_all_as_read_params
+      options[:ids] = Message.mark_all_as_read(options.values).rows.map(&:first)
+
+      respond_to_mark_as_read(options)
+    end
+
+    private
+
+    def respond_to_mark_as_read(options = {})
       ChatsRelayJob.read(options)
       as_success(ids: options[:ids])
     end

@@ -95,6 +95,21 @@ RSpec.describe V1::MessagesController, type: :request do
     describe 'Mark as read' do
       let(:params) { {convo: {authorId: @another_user.id, ids: @ids}} }
 
+      let(:succeeds) do
+        expect(response).to have_http_status(:success)
+        expect(load_body(:request)).to include('ids')
+      end
+
+      let(:succeeds_effectively) do
+        succeeds
+        expect(@body['ids']).to eq(@ids)
+      end
+
+      let(:succeeds_ineffectively) do
+        succeeds
+        expect(@body['ids'].length).to eq(0)
+      end
+
       before do
         @ids = ActiveRecordTestHelpers::FactoryMessage.many(
           2,
@@ -110,22 +125,36 @@ RSpec.describe V1::MessagesController, type: :request do
         it 'fails when :convo missing' do
           post(v1_mark_as_read_path, headers: @headers)
           expect(response).to have_http_status(:bad_request)
+
+          post(v1_mark_all_as_read_path, headers: @headers)
+          expect(response).to have_http_status(:bad_request)
         end
 
         it 'fails when :convo is not of Hash type' do
           post(v1_mark_as_read_path, headers: @headers, params: {convo: nil}, as: :json)
           expect(response).to have_http_status(:bad_request)
+
+          post(v1_mark_all_as_read_path, headers: @headers, params: {convo: nil}, as: :json)
+          expect(response).to have_http_status(:bad_request)
         end
 
         it 'fails when missing :authorId in params' do
           params[:convo].delete(:authorId)
+
           post(v1_mark_as_read_path, headers: @headers, params:, as: :json)
+          expect(response).to have_http_status(:bad_request)
+
+          post(v1_mark_all_as_read_path, headers: @headers, params:, as: :json)
           expect(response).to have_http_status(:bad_request)
         end
 
         it 'fails when :authorId is a non positive digit' do
           params[:convo][:authorId] = 0
+
           post(v1_mark_as_read_path, headers: @headers, params:, as: :json)
+          expect(response).to have_http_status(:bad_request)
+
+          post(v1_mark_all_as_read_path, headers: @headers, params:, as: :json)
           expect(response).to have_http_status(:bad_request)
         end
 
@@ -148,33 +177,58 @@ RSpec.describe V1::MessagesController, type: :request do
         end
       end
 
-      it 'succeeds with effect' do
+      it 'succeeds effectively' do
         post(v1_mark_as_read_path, headers: @headers, params:, as: :json)
-
-        expect(response).to have_http_status(:success)
-        expect(load_body(:request)).to include('ids')
-        expect(@body['ids']).to eq(@ids)
+        succeeds_effectively
       end
 
-      it 'enqueues a job when there was effect' do
+      it 'marking all succeeds effectively' do
+        params.delete(:ids)
+        post(v1_mark_all_as_read_path, headers: @headers, params:, as: :json)
+        succeeds_effectively
+      end
+
+      it 'enqueues a job when effective' do
         expect do
           post(v1_mark_as_read_path, headers: @headers, params:, as: :json)
         end.to have_enqueued_job
       end
 
-      it 'succeeds without effect' do
+      it 'marking all enqueues a job when effective' do
+        params.delete(:ids)
+        expect do
+          post(v1_mark_all_as_read_path, headers: @headers, params:, as: :json)
+        end.to have_enqueued_job
+      end
+
+      it 'succeeds ineffectively' do
         params[:convo][:ids] = ActiveRecordTestHelpers::FactoryMessage.many(
           2,
           { recipient: @current_user, author: @another_user, seen_at: Time.now }
         ).map(&:id)
         post(v1_mark_as_read_path, headers: @headers, params:, as: :json)
 
-        expect(response).to have_http_status(:success)
-        expect(load_body(:request)).to include('ids')
-        expect(@body['ids'].length).to eq(0)
+        succeeds_ineffectively
       end
 
-      it 'does not enqueue a job when there was no effect' do
+      it 'marking all succeeds ineffectively' do
+        Message.where(id: @ids).update_all(seen_at: Time.now)
+        params.delete(:ids)
+        post(v1_mark_all_as_read_path, headers: @headers, params:, as: :json)
+
+        succeeds_ineffectively
+      end
+
+      it 'marking all does not enqueue a job when ineffective' do
+        Message.where(id: @ids).update_all(seen_at: Time.now)
+        params.delete(:ids)
+
+        expect do
+          post(v1_mark_all_as_read_path, headers: @headers, params:, as: :json)
+        end.not_to have_enqueued_job
+      end
+
+      it 'does not enqueue a job when ineffective' do
         params[:convo][:ids] = ActiveRecordTestHelpers::FactoryMessage.many(
           2,
           { recipient: @current_user, author: @another_user, seen_at: Time.now }
